@@ -8,7 +8,7 @@ public class Roads {
 	/**
 	 * Container
 	 */
-	protected Map<Road, RoadValue> roadsMap=null;
+	private Map<Road, RoadValue> roadsMap=null;
 	private Network net;
 	private CarStream cStream;
 
