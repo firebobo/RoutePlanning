@@ -81,6 +81,10 @@ public class MovingObject {
 	 */
 	private double doneDist = 0;
 	/**
+	 * 这个移动粒子当前的移动速度
+	 */
+	private double speed=8.5;
+	/**
 	 * The last computed x-position.
 	 */
 	private double lastX = 0;
@@ -163,7 +167,7 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 		reroute(actEdge);
 	}
 	// traverse path
-	double remainingTime = 1;
+	double remainingTime = 2;
 	double llx = lastX;
 	double lly = lastY;
 	// set edge characteristics
@@ -171,7 +175,6 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 	if (actDist == 0)	// in the case of identical nodes
 		actDist = 1;
 	double actWeight = actEdge.getWeight();
-	double speed = actDist/actWeight;
 	double maxDistOnEdge = remainingTime*speed;
 	while (true) {
 		// case 1: next node is not reached
@@ -230,6 +233,10 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 			}
 		}
 	}
+}
+
+public double getSpeed() {
+	return speed;
 }
 
 /**
@@ -395,7 +402,7 @@ public void reportNewObject (Reporter reporter) {
 		double speed = actDist/actWeight;
 		Node nextNode = route.getDestinationNode();
 		repNum = reporter.reportNewMovingObject (startTime,id,objClass,start.getX(),start.getY(),speed,nextNode.getX(),nextNode.getY(),objClasses.getReportProbability(objClass));
-		reporter.reportEdge(startTime,id,++edgeNum,objClass,currEdge.getId(),currEdge.getEdgeClass(),route.getStartingNode().getX(),route.getStartingNode().getY(),speed,route.getDestinationNode().getX(),route.getDestinationNode().getY(),objClasses.getReportProbability(objClass));
+		//reporter.reportEdge(startTime,id,++edgeNum,objClass,currEdge.getId(),currEdge.getEdgeClass(),route.getStartingNode().getX(),route.getStartingNode().getY(),speed,route.getDestinationNode().getX(),route.getDestinationNode().getY(),objClasses.getReportProbability(objClass));
 	}
 	util.Timer.start(1);
 }

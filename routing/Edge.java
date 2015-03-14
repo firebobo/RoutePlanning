@@ -374,11 +374,11 @@ public class Edge extends Drawable implements Comparable {
 
 	public boolean moveIn() {
 		carNum++;
-		return carNum/length<0.5?false:true;
+		return carNum/length<0.2?false:true;
 	}
 	public boolean moveOut() {
 		carNum--;
-		return carNum/length<0.5?false:true;
+		return carNum/length<0.2?false:true;
 	}
 	/**
 	 * Not implemented.

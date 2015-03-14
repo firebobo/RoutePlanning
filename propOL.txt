@@ -15,7 +15,7 @@ urlnez = file:/E:/Working/Generator21/data/oldenburgGen
 !waitingPeriod = 1
 !DSO
 VIZ
-outputFile = C:\\Daten\\ST_Testdaten\\oldenburg.dat
+outputFile = Data/oldenburg.dat
 !seed = 123
 
 ! setting of the applet

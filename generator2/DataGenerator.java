@@ -207,7 +207,6 @@ public abstract class DataGenerator extends ShowNetworkMap implements java.awt.e
 	 * Report probability text field
 	 */
 	private TextField reportProbText = null;
-	private Roads roads=null;
 
 /**
  * main entrypoint - starts the part when it is run as an application
@@ -439,22 +438,23 @@ public synchronized void compute () {
 				obj.setStart(objGen.computeStartingNode(actTime,objClass));
 				obj.setDestination(objGen.computeDestinationNode(actTime,start,objGen.computeLengthOfRoute(actTime,objClass),objClass));
 			}
-			obj.reportNewObject (reporter);
+			//obj.reportNewObject (reporter);
 		}
 		// show object if there is enough time
-		if (waitingPeriod > 0) {
-			if (!Time.isFirstTimeStamp(actTime)) {
-				for (int c=0; c<objClasses.getNumber(); c++)
-					DrawablePresentation.get("Point"+c+"-"+(this.actTime-1)).setVisibility(false);
-				for (int c=0; c<extObjClasses.getNumber(); c++)
-					DrawablePresentation.get("Rectangle"+c+"-"+(this.actTime-1)).setVisibility(false);
-			}
-			for (int c=0; c<objClasses.getNumber(); c++)
-				DrawablePresentation.get("Point"+c+"-"+this.actTime).setVisibility(true);
-			for (int c=0; c<extObjClasses.getNumber(); c++)
-				DrawablePresentation.get("Rectangle"+c+"-"+this.actTime).setVisibility(true);
-			update(getGraphics());
-		}
+//		if (waitingPeriod > 0) {
+//			if (!Time.isFirstTimeStamp(actTime)) {
+//				for (int c=0; c<objClasses.getNumber(); c++)
+//					DrawablePresentation.get("Point"+c+"-"+(this.actTime-1)).setVisibility(false);
+//				for (int c=0; c<extObjClasses.getNumber(); c++)
+//					DrawablePresentation.get("Rectangle"+c+"-"+(this.actTime-1)).setVisibility(false);
+//			}
+//			for (int c=0; c<objClasses.getNumber(); c++)
+//				DrawablePresentation.get("Point"+c+"-"+this.actTime).setVisibility(true);
+//			for (int c=0; c<extObjClasses.getNumber(); c++)
+//				DrawablePresentation.get("Rectangle"+c+"-"+this.actTime).setVisibility(true);
+//			update(getGraphics());
+//			System.out.println("update start");
+//		}
 		// to the next time stamp
 		time.increaseCurrTime();
 		actTime = time.getCurrTime();
@@ -469,46 +469,46 @@ public synchronized void compute () {
 	// report and remove all still existing objects
 	showStatus("remove remaining objects and report statistics...");
 	movingObjects.removeObjects();
-	if (extObjectsExist)
-		extObjects.removeObjects();
-	// report statistics
-	long totalTime = util.Timer.get(1);
-	long routingTime = util.Timer.get(2);
-	int numOfRoutes = movingObjects.getTotalNumOfObjects()+reroute.getNumberOfRoutesByEvent()+reroute.getNumberOfRoutesByComparison();
-	int dx = dataspace.getMaxX()-dataspace.getMinX();
-	int dy = dataspace.getMaxY()-dataspace.getMinY();
-	reporter.reportInt("data space width: ",dx);
-	reporter.reportInt("data space height: ",dy);
-	reporter.reportInt("number of nodes: ",nodes.numOfNodes());
-	reporter.reportInt("number of edges: ",edges.numOfEdges());
-	reporter.reportInt("maximum time: ",time.getMaxTime());
-	reporter.reportInt("# moving objects: ",movingObjects.getTotalNumOfObjects());
-	reporter.reportInt("# points: ",reporter.getNumberOfReportedPoints());
-	reporter.reportInt("# traversed nodes: ",movingObjects.getTotalNumberOfTraversedNodes());
-	reporter.reportDouble("# nodes/obj: ",((double)movingObjects.getTotalNumberOfTraversedNodes())/movingObjects.getTotalNumOfObjects());
-	reporter.reportDouble("# traversed degree: ",movingObjects.getTotalDegreeOfTraversedNodes());
-	double nodeDegree = (double)(movingObjects.getTotalDegreeOfTraversedNodes()-movingObjects.getTotalNumberOfTraversedNodes())/movingObjects.getTotalNumberOfTraversedNodes();
-	reporter.reportDouble("# node degree: ",nodeDegree);
-	reporter.reportInt("# all routes: ",numOfRoutes);
-	reporter.reportInt("# routes by event: ",reroute.getNumberOfRoutesByEvent());
-	reporter.reportInt("# routes by comparison: ",reroute.getNumberOfRoutesByComparison());
-	reporter.reportInt("total time in ms: ",totalTime);
-	reporter.reportDouble("total time/obj: ",((double)totalTime/movingObjects.getTotalNumOfObjects()));
-	reporter.reportDouble("total time/point: ",((double)totalTime/reporter.getNumberOfReportedPoints()));
-	reporter.reportDouble("routing time in ms: ",routingTime);
-	reporter.reportDouble("insert time: ",BorderHeap.insertTimer.get());
-	reporter.reportDouble("fetch time:  ",BorderHeap.fetchTimer.get());
-	reporter.reportDouble("change time: ",BorderHeap.changeTimer.get());
-	reporter.reportDouble("routing time/obj: ",((double)routingTime/movingObjects.getTotalNumOfObjects()));
-	reporter.reportDouble("routing time/point: ",((double)routingTime/reporter.getNumberOfReportedPoints()));
-	reporter.reportDouble("routing time/node: ",((double)routingTime/movingObjects.getTotalNumberOfTraversedNodes()));
-	reporter.reportDouble("routing time/node/nodedegr: ",((double)routingTime/movingObjects.getTotalNumberOfTraversedNodes()/nodeDegree));
-	reporter.reportDouble("routing time/routing: ",((double)routingTime/numOfRoutes));
-	if (extObjectsExist) {
-		reporter.reportInt("# computed decreases: ",extObjects.getNumOfComputedDecreases());
-		reporter.reportInt("# real decreases: ",extObjects.getNumOfRealDecreases());
-		reporter.reportInt("time for external objects in ms: ",extObjects.getUsedTime());
-	}
+//	if (extObjectsExist)
+//		extObjects.removeObjects();
+//	// report statistics
+//	long totalTime = util.Timer.get(1);
+//	long routingTime = util.Timer.get(2);
+//	int numOfRoutes = movingObjects.getTotalNumOfObjects()+reroute.getNumberOfRoutesByEvent()+reroute.getNumberOfRoutesByComparison();
+//	int dx = dataspace.getMaxX()-dataspace.getMinX();
+//	int dy = dataspace.getMaxY()-dataspace.getMinY();
+//	reporter.reportInt("data space width: ",dx);
+//	reporter.reportInt("data space height: ",dy);
+//	reporter.reportInt("number of nodes: ",nodes.numOfNodes());
+//	reporter.reportInt("number of edges: ",edges.numOfEdges());
+//	reporter.reportInt("maximum time: ",time.getMaxTime());
+//	reporter.reportInt("# moving objects: ",movingObjects.getTotalNumOfObjects());
+//	reporter.reportInt("# points: ",reporter.getNumberOfReportedPoints());
+//	reporter.reportInt("# traversed nodes: ",movingObjects.getTotalNumberOfTraversedNodes());
+//	reporter.reportDouble("# nodes/obj: ",((double)movingObjects.getTotalNumberOfTraversedNodes())/movingObjects.getTotalNumOfObjects());
+//	reporter.reportDouble("# traversed degree: ",movingObjects.getTotalDegreeOfTraversedNodes());
+//	double nodeDegree = (double)(movingObjects.getTotalDegreeOfTraversedNodes()-movingObjects.getTotalNumberOfTraversedNodes())/movingObjects.getTotalNumberOfTraversedNodes();
+//	reporter.reportDouble("# node degree: ",nodeDegree);
+//	reporter.reportInt("# all routes: ",numOfRoutes);
+//	reporter.reportInt("# routes by event: ",reroute.getNumberOfRoutesByEvent());
+//	reporter.reportInt("# routes by comparison: ",reroute.getNumberOfRoutesByComparison());
+//	reporter.reportInt("total time in ms: ",totalTime);
+//	reporter.reportDouble("total time/obj: ",((double)totalTime/movingObjects.getTotalNumOfObjects()));
+//	reporter.reportDouble("total time/point: ",((double)totalTime/reporter.getNumberOfReportedPoints()));
+//	reporter.reportDouble("routing time in ms: ",routingTime);
+//	reporter.reportDouble("insert time: ",BorderHeap.insertTimer.get());
+//	reporter.reportDouble("fetch time:  ",BorderHeap.fetchTimer.get());
+//	reporter.reportDouble("change time: ",BorderHeap.changeTimer.get());
+//	reporter.reportDouble("routing time/obj: ",((double)routingTime/movingObjects.getTotalNumOfObjects()));
+//	reporter.reportDouble("routing time/point: ",((double)routingTime/reporter.getNumberOfReportedPoints()));
+//	reporter.reportDouble("routing time/node: ",((double)routingTime/movingObjects.getTotalNumberOfTraversedNodes()));
+//	reporter.reportDouble("routing time/node/nodedegr: ",((double)routingTime/movingObjects.getTotalNumberOfTraversedNodes()/nodeDegree));
+//	reporter.reportDouble("routing time/routing: ",((double)routingTime/numOfRoutes));
+//	if (extObjectsExist) {
+//		reporter.reportInt("# computed decreases: ",extObjects.getNumOfComputedDecreases());
+//		reporter.reportInt("# real decreases: ",extObjects.getNumOfRealDecreases());
+//		reporter.reportInt("time for external objects in ms: ",extObjects.getUsedTime());
+//	}
 	long totalDistance = 0;
 	for (Enumeration e = edges.elements(); e.hasMoreElements();) {
 		Edge edge = (Edge)e.nextElement();
@@ -807,7 +807,7 @@ protected Label getObjBeginLabel() {
  */
 protected TextField getObjBeginTextField () {
 	if (objBeginText == null) {
-		objBeginText = new TextField("5");
+		objBeginText = new TextField("100");
 		objBeginText.setName("ObjBeginTextField");
 		objBeginText.setFont(new Font("Dialog", 0, 11));
 	};
@@ -834,7 +834,7 @@ protected Label getObjPerTimeLabel() {
  */
 protected TextField getObjPerTimeTextField () {
 	if (objPerTimeText == null) {
-		objPerTimeText = new TextField("5");
+		objPerTimeText = new TextField("50");
 		objPerTimeText.setName("ObjPerTimeTextField");
 		objPerTimeText.setFont(new Font("Dialog", 0, 11));
 	};
@@ -1056,7 +1056,7 @@ protected void setState (int state) {
 	this.movePos(r.x+r.width/2,r.y+r.height,scale);
 	repaint();
 	// Automatic computation
-	if (getValueOfTextField(getMaxTimeTextField(),MIN_MAXTIME,MAX_MAXTIME,true) != 20)
+	if (getValueOfTextField(getMaxTimeTextField(),MIN_MAXTIME,MAX_MAXTIME,true) != 100)
 		compute();
 	// Compute button
 	getComputeButton().setEnabled(true);

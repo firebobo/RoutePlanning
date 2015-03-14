@@ -1248,8 +1248,10 @@ public abstract class ShowMap extends Applet implements ActionListener, ItemList
 		DrawableObject oldSelectedObject = drawableObjects.getSelectedObject();
 		drawableObjects.deselect();
 		// ggf. Double-Buffer anlegen
-		if (doubleBuffer == null)
+		if (doubleBuffer == null){
 			doubleBuffer = createImage (viewWidth, viewHeight);
+			System.out.println("update start null");
+		}
 		Graphics g = doubleBuffer.getGraphics();
 		// Hintergrund zeichnen
 		g.setPaintMode ();

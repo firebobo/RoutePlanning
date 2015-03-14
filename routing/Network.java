@@ -33,9 +33,9 @@ public class Network {
 	 */
 	private BorderHeap border = new BorderHeap();
 	/**
-	 * 存储Floyed算法形成的hash表
+	 * 记录车子的类型，主要区别相同车流密度下，值越大，说明车子越灵活，车子速度越大,为了减少数据量，这只是假设值，实际情况是他的5倍
 	 */
-	private Map<Road, RoadValue> roadsMap=new HashMap<Road,RoadValue>();;
+	private int[] carPreMaxStream={50,30,20,15,10};
 	/**
 	 * 	Distanz-Wert f�r unendlich
 	 */
@@ -77,7 +77,12 @@ public Network () {
 	edges.setWeightManager(new StandardWeightManager(edges));
 	nodes = new Nodes(edges);
 }
-
+/**
+ * Berechnet nach Dijkstra den schnellsten Weg von einem Start- zu einem Endknoten.
+ * @return berechneter Weg
+ * @param start Startknoten
+ * @param stop Stopknoten
+ */
 public PathEdge computeFastestWay (Node start, Node stop) {
 	if ((start == null) || (stop == null) || (start.equals(stop)))
 		return null;
@@ -357,19 +362,7 @@ protected void computeNewConnection (BorderHeap border, Node start, Edge actEdge
 	}	
 }
 
-public PathEdge computePathWithMy(Node start,Node end) {
-	RoadValue roadValue=roadsMap.get(new Road(start.getID(), end.getID()));
-	if(roadValue==null){
-		return null;
-	}
-	if(roadValue.getNid3()==0){
-		return new PathEdge(start.getBetweenEdge(end), true);
-	}else{
-		PathEdge path=computePathWithMy(start, nodes.get(roadValue.getNid3()));
-		path.next=computePathWithMy(nodes.get(roadValue.getNid3()), end);
-		return path;
-	}
-}
+
 /**
  * Berechnung des Ergebnispfad von einem Knoten ausgehend.
  * Ggf. wird neben dem NWAY1-Weg auch der NWAY2-Weg hinzugef�gt.
@@ -522,46 +515,8 @@ System.err.println("Ich glaube das nachfolgende ist falsch, da sich path nicht �
 
 	return path;
 }
-/**
- * Berechnet nach Dijkstra den schnellsten Weg von einem Start- zu einem Endknoten.
- * @return berechneter Weg
- * @param start Startknoten
- * @param stop Stopknoten
- */
-public void computeWithFloyed() {
-	Enumeration<?>  en=edges.hashTable.keys();
-	while(en.hasMoreElements()){
-		Edge edge=(Edge) en.nextElement();
-		roadsMap=new HashMap<Road,RoadValue>();
-		Road road1=new Road(edge.getNode1().getID(), edge.getNode2().getID());
-		Road road2=new Road(edge.getNode2().getID(), edge.getNode1().getID());
-		roadsMap.put(road1, new RoadValue(edge.getLength(), 0));
-		roadsMap.put(road2, new RoadValue(edge.getLength(), 0));
-	}
-	Nodes nodes=getNodes();
-	Enumeration<?>  en1=nodes.hashTable.keys();
-	Enumeration<?>  en2=nodes.hashTable.keys();
-	Enumeration<?>  en3=nodes.hashTable.keys();
-	while(en3.hasMoreElements()){
-		Node node3=(Node) en3.nextElement();
-		while(en1.hasMoreElements()){
-			Node node1=(Node) en1.nextElement();
-			while(en2.hasMoreElements()){
-				Node node2=(Node) en2.nextElement();
-				RoadValue value=roadsMap.get(new Road(node1.getID(),node2.getId()));
-				RoadValue value1=roadsMap.get(new Road(node1.getID(),node3.getId()));
-				RoadValue value2=roadsMap.get(new Road(node2.getID(),node3.getId()));
 
-				if(value1!=null&&value2!=null&&value.getLength()>value1.getLength()+value2.getLength()){
 
-					roadsMap.put(new Road(node1.getID(), node2.getID()), new RoadValue(value1.getLength()+value2.getLength(), node3.getID()));
-				}
-
-			}
-		}		
-
-	}
-}
 /**
  * Erzeugt Netzwerk aus Netzwerk-Dateien.
  * @param nodeIn DataInputStream f�r Knoten
