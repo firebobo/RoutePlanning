@@ -234,6 +234,85 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 		}
 	}
 }
+private boolean computeNextPointByMine(int newTime, Reporter reporter) {
+	if (route == null)
+		return true;
+	// decrease usage of the edge traversed during the last time period
+	Edge actEdge = route.getEdge();
+	decreaseUsage (route);
+	lastRoute = route;
+	// if event then re-route
+	if (container.getReRoute().computeNewRouteByEvent (lastTime,actTime)) {
+		reroute(actEdge);
+	}
+	// traverse path
+	double remainingTime = 2;
+	double llx = lastX;
+	double lly = lastY;
+	// set edge characteristics
+	double actDist = actEdge.getLength();
+	if (actDist == 0)	// in the case of identical nodes
+		actDist = 1;
+	double actWeight = actEdge.getWeight();
+	double maxDistOnEdge = remainingTime*speed;
+	while (true) {
+		// case 1: next node is not reached
+		if (relDist+maxDistOnEdge < actDist) {
+			relDist += maxDistOnEdge;
+			computePoint(actEdge,lastNode,relDist);
+			util.Timer.stop(1);
+			doneDist += computeDistance(llx,lly,lastX,lastY);
+			int oldRepNum = repNum;
+			Node nextNode = route.getDestinationNode();
+ 			repNum = reporter.reportMovingObject(newTime,id,repNum,objClass,lastX,lastY,speed,doneDist,nextNode.getX(),nextNode.getY(),objClasses.getReportProbability(objClass));
+ 			if (repNum != oldRepNum)
+ 				doneDist = 0;
+			util.Timer.start(1);
+			return false;
+		}
+		// case 2: next node is reached
+		else {
+			remainingTime -= (actDist-relDist)*actWeight/actDist;
+			relDist = 0;
+			lastNode = actEdge.getOppositeNode(lastNode);
+			doneDist += computeDistance(llx,lly,lastNode.getX(),lastNode.getY());
+			llx = lastNode.getX();
+			lly = lastNode.getY();
+			// case 2a next node is destination
+			if (lastNode == dest) {
+				decreaseUsage (null);
+				arrivalTime = newTime-remainingTime;
+				return true;
+			}
+			// else: fetch next edge
+			route = route.getNext();
+			if (route == null) {
+				//System.err.println("computeNextPoint: route == null! (2)"+id+" at "+newTime);
+				dest = lastNode;
+				decreaseUsage (null);
+				arrivalTime = newTime-remainingTime;
+				return true;
+			}
+			actEdge = route.getEdge();
+			actEdge.incUsage();
+			// update edge characteristics
+			actDist = actEdge.getLength();
+			if (actDist == 0)	// in the case of identical nodes
+				actDist = 1;
+			actWeight = actEdge.getWeight();
+			speed = actDist/actWeight;
+			maxDistOnEdge = remainingTime*speed;
+			// report
+			util.Timer.stop(1);
+			reporter.reportEdge(newTime-remainingTime,id,++edgeNum,objClass,actEdge.getId(),actEdge.getEdgeClass(),route.getStartingNode().getX(),route.getStartingNode().getY(),speed,route.getDestinationNode().getX(),route.getDestinationNode().getY(),objClasses.getReportProbability(objClass));
+			util.Timer.start(1);
+			// if significant speed change then re-route
+			if (container.getReRoute().computeNewRouteByComparison (lastTime,actTime,(int)(0x7fffffff/route.getOrigWeight()),(int)(0x7fffffff/actWeight))) {
+				reroute(actEdge);
+			}
+		}
+	}
+}
 
 public double getSpeed() {
 	return speed;
