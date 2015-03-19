@@ -18,6 +18,8 @@ import routing.*;
 
 public class MovingObject {
 
+	private double carPreStream = 0;
+
 	/**
 	 * Description of the object classes.
 	 */
@@ -121,6 +123,19 @@ public MovingObject (int id, int objClass, Node start, Node dest, int time) {
 	lastX = start.getX();
 	lastY = start.getY();
 }
+public MovingObject (int id, int objClass, Node start, Node dest, int time,double carPreStream) {
+	this.id = id;
+	this.objClass = objClass;
+	this.start = start;
+	this.dest = dest;
+	this.startTime = time;
+	this.lastTime = time;
+	this.actTime = time;
+	this.lastNode = start;
+	lastX = start.getX();
+	lastY = start.getY();
+	this.carPreStream=carPreStream;
+}
 
 /**
  * Adds the moving object to the container.
@@ -167,7 +182,7 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 		reroute(actEdge);
 	}
 	// traverse path
-	double remainingTime = 2;
+	double remainingTime = 1;
 	double llx = lastX;
 	double lly = lastY;
 	// set edge characteristics
@@ -175,7 +190,7 @@ private boolean computeNextPoint (int newTime, Reporter reporter) {
 	if (actDist == 0)	// in the case of identical nodes
 		actDist = 1;
 	double actWeight = actEdge.getWeight();
-	double maxDistOnEdge = remainingTime*speed;
+	double maxDistOnEdge = 2*remainingTime*speed;
 	while (true) {
 		// case 1: next node is not reached
 		if (relDist+maxDistOnEdge < actDist) {
@@ -241,12 +256,9 @@ private boolean computeNextPointByMine(int newTime, Reporter reporter) {
 	Edge actEdge = route.getEdge();
 	decreaseUsage (route);
 	lastRoute = route;
-	// if event then re-route
-	if (container.getReRoute().computeNewRouteByEvent (lastTime,actTime)) {
-		reroute(actEdge);
-	}
+
 	// traverse path
-	double remainingTime = 2;
+	double remainingTime = 1;
 	double llx = lastX;
 	double lly = lastY;
 	// set edge characteristics
@@ -254,10 +266,16 @@ private boolean computeNextPointByMine(int newTime, Reporter reporter) {
 	if (actDist == 0)	// in the case of identical nodes
 		actDist = 1;
 	double actWeight = actEdge.getWeight();
-	double maxDistOnEdge = remainingTime*speed;
+	double maxDistOnEdge = 2*remainingTime*speed;
 	while (true) {
-		// case 1: next node is not reached
+		//case 1:起点
+		
+		// case 2: next node is not reached
 		if (relDist+maxDistOnEdge < actDist) {
+			if(relDist==0){
+				actEdge.moveIn();
+				speed=getSpeed(actEdge);
+			}
 			relDist += maxDistOnEdge;
 			computePoint(actEdge,lastNode,relDist);
 			util.Timer.stop(1);
@@ -270,9 +288,9 @@ private boolean computeNextPointByMine(int newTime, Reporter reporter) {
 			util.Timer.start(1);
 			return false;
 		}
-		// case 2: next node is reached
-		else {
-			remainingTime -= (actDist-relDist)*actWeight/actDist;
+		// case 3: next node is reached
+		else{
+			remainingTime -= (actDist-relDist)/speed;
 			relDist = 0;
 			lastNode = actEdge.getOppositeNode(lastNode);
 			doneDist += computeDistance(llx,lly,lastNode.getX(),lastNode.getY());
@@ -284,6 +302,7 @@ private boolean computeNextPointByMine(int newTime, Reporter reporter) {
 				arrivalTime = newTime-remainingTime;
 				return true;
 			}
+			actEdge.moveOut();
 			// else: fetch next edge
 			route = route.getNext();
 			if (route == null) {
@@ -301,21 +320,28 @@ private boolean computeNextPointByMine(int newTime, Reporter reporter) {
 				actDist = 1;
 			actWeight = actEdge.getWeight();
 			speed = actDist/actWeight;
-			maxDistOnEdge = remainingTime*speed;
+			maxDistOnEdge = 2*remainingTime*speed;
 			// report
 			util.Timer.stop(1);
 			reporter.reportEdge(newTime-remainingTime,id,++edgeNum,objClass,actEdge.getId(),actEdge.getEdgeClass(),route.getStartingNode().getX(),route.getStartingNode().getY(),speed,route.getDestinationNode().getX(),route.getDestinationNode().getY(),objClasses.getReportProbability(objClass));
 			util.Timer.start(1);
 			// if significant speed change then re-route
-			if (container.getReRoute().computeNewRouteByComparison (lastTime,actTime,(int)(0x7fffffff/route.getOrigWeight()),(int)(0x7fffffff/actWeight))) {
+			if (isRefreshRoute(actEdge)) {
 				reroute(actEdge);
 			}
 		}
 	}
 }
 
-public double getSpeed() {
-	return speed;
+private boolean isRefreshRoute(Edge edge) {
+	if(edge.getCarNum()/edge.getLength()>carPreStream/2000){
+		System.out.println("moveObject.id="+id);
+		return true;
+	}
+	return false;
+}
+public double getSpeed(Edge edge) {
+	return 8.5/(1+Math.pow(Math.E, edge.getCarNum()/edge.getLength()-carPreStream/2000));
 }
 
 /**
@@ -449,7 +475,7 @@ public boolean move (int newTime, Reporter reporter) {
 		container.getWeightManager().setActualObjectClass(objClass);
 		while (actTime < newTime) {
 			actTime++;
-			if (computeNextPoint(actTime,reporter))
+			if (computeNextPointByMine(actTime,reporter))
 				return true;
 		}
 	}

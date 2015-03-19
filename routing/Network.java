@@ -35,7 +35,7 @@ public class Network {
 	/**
 	 * 记录车子的类型，主要区别相同车流密度下，值越大，说明车子越灵活，车子速度越大,为了减少数据量，这只是假设值，实际情况是他的5倍
 	 */
-	private int[] carPreMaxStream={50,30,20,15,10};
+	private double[] carPreMaxStream={200,125,100,66,50};
 	/**
 	 * 	Distanz-Wert f�r unendlich
 	 */
@@ -361,8 +361,12 @@ protected void computeNewConnection (BorderHeap border, Node start, Edge actEdge
 		}
 	}	
 }
-
-
+/**
+ * 
+ */
+public double getCarPreStream(int carStyle) {
+	return carPreMaxStream[carStyle];
+}
 /**
  * Berechnung des Ergebnispfad von einem Knoten ausgehend.
  * Ggf. wird neben dem NWAY1-Weg auch der NWAY2-Weg hinzugef�gt.

@@ -431,7 +431,8 @@ public synchronized void compute () {
 			int objClass = objGen.computeObjectClass(actTime);
 			Node start = objGen.computeStartingNode(actTime,objClass);
 			Node dest = objGen.computeDestinationNode(actTime,start,objGen.computeLengthOfRoute(actTime,objClass),objClass);
-			MovingObject obj = new MovingObject (id,objClass,start,dest,actTime);
+			//
+			MovingObject obj = new MovingObject (id,objClass,start,dest,actTime,net.getCarPreStream(reporter.random.nextInt(4)));
 			obj.addToContainer (movingObjects);
 			// and compute the (first) route
 			while (! obj.computeRoute()) {
